@@ -13,6 +13,7 @@
       <list>
         <option value="$PROJECT_DIR$/01-check-connection/pom.xml" />
         <option value="$PROJECT_DIR$/02-terminal-chat/pom.xml" />
+        <option value="$PROJECT_DIR$/03-simple-chatApp-FX/pom.xml" />
       </list>
     </option>
   </component>

@@ -7,47 +7,52 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
-/**
- * @author manuthlakdiv
- * @email manuthlakdiv2006.com
- * @project Network-Programming-demo
- * @github https://github.com/ManuthLakdiw
- */
 public class Server {
     public static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(9000);
-            System.out.println("waiting for client");
+            System.out.println("Waiting for client...");
+
             Socket socket = serverSocket.accept();
-            System.out.println("client connected");
-            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+            System.out.println("Client connected!");
 
+            DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+            Scanner scanner = new Scanner(System.in);
+
+            // Thread to continuously read messages from client
+            Thread readThread = new Thread(() -> {
+                try {
+                    while (true) {
+                        String clientMessage = inputStream.readUTF();
+                        System.out.println("From client: " + clientMessage);
+
+                        if (clientMessage.equals("bye")) {
+                            socket.close();
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    System.out.println("Client disconnected.");
+                }
+            });
+            readThread.start();
+
+            // Main thread for writing messages to client
             while (true) {
-                System.out.println("\n"+dataInputStream.readUTF());
+                System.out.print("Write message to client: ");
+                String serverMessage = scanner.nextLine();
+                outputStream.writeUTF(serverMessage);
+                outputStream.flush();
 
-                Scanner scanner = new Scanner(System.in);
-                System.out.print("Type here : ");
-                String message = scanner.nextLine();
-                dataOutputStream.writeUTF(message);
-                dataOutputStream.flush();
-
-                if (message.equals("exit")) {
+                if (serverMessage.equals("bye")) {
+                    socket.close();
                     break;
-
                 }
             }
 
-            socket.close();
-
-
-
-
-
-
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Connection closed or error occurred: " + e.getMessage());
         }
-
     }
 }
